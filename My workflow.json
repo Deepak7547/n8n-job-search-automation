@@ -1,0 +1,358 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "google_jobs",
+        "q": "Data Scientist",
+        "additionalFields": {
+          "location": "Noida"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-serpapi.serpApi",
+      "typeVersion": 1,
+      "position": [
+        -1568,
+        -448
+      ],
+      "id": "1021b201-5b8c-400b-a9da-d78771e4e57c",
+      "name": "Google_jobs search",
+      "credentials": {
+        "serpApi": {
+          "id": "9jO7vbAYvT3QOT1O",
+          "name": "SerpApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "jobs_results",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        -432
+      ],
+      "id": "8943decf-ce2f-4bfe-9704-e30feadd33b6",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-flash-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a strict job classifier.\n\nJob Title: {{$json[\"job_title\"]}}\n\nIf the Job Title contains ANY of these:\nData Analyst, Data Scientist, Data Science, Machine Learning, Artificial Intelligence, AI, GenAI, Analytics, Business Intelligence\n\nreturn exactly:\nRelevant\n\nOtherwise return exactly:\nNot Relevant\n\nReturn ONLY one word."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -1152,
+        -432
+      ],
+      "id": "d7038432-bb60-4605-9a5f-9e38dfdbc760",
+      "name": "Message a model",
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "GAZ0cGVIJcRjPe2G",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        -432
+      ],
+      "id": "7ed73220-db1a-43ef-b50d-632ae7c7a55f",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc6b11e4-1499-4f5e-bfba-df74e4442f5b",
+              "name": "Job_title",
+              "value": "={{ $('Split Out').item.json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "5a86b7de-d001-4657-828c-5d7d5f6217ec",
+              "name": "company_name",
+              "value": "={{ $('Split Out').item.json.company_name }}",
+              "type": "string"
+            },
+            {
+              "id": "6cbea9bf-b1fd-4326-9f13-6f7c72dcbab0",
+              "name": "location",
+              "value": "={{ $('Split Out').item.json.location }}",
+              "type": "string"
+            },
+            {
+              "id": "d0f437d6-fc9b-4dc6-8d31-9ba279174449",
+              "name": "via",
+              "value": "={{ $('Split Out').item.json.via }}",
+              "type": "string"
+            },
+            {
+              "id": "4ea57efa-cf82-4d69-a73b-5f0bf562cdc7",
+              "name": "description",
+              "value": "={{ $('Split Out').item.json.description }}",
+              "type": "string"
+            },
+            {
+              "id": "517a7bae-f98c-4983-ad8b-adcea7d24e1c",
+              "name": "source_link",
+              "value": "={{ $('Split Out').item.json.source_link }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -912,
+        -432
+      ],
+      "id": "80909338-0a4d-4ecb-a3be-505f48dffda5",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1x17T2nYVYo5AgcisNB1ASv64GlBYftrxbolDINRciYE",
+          "mode": "list",
+          "cachedResultName": "Job Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1x17T2nYVYo5AgcisNB1ASv64GlBYftrxbolDINRciYE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1x17T2nYVYo5AgcisNB1ASv64GlBYftrxbolDINRciYE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "source_link"
+          ],
+          "schema": [
+            {
+              "id": "Job_title",
+              "displayName": "Job_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "via",
+              "displayName": "via",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source_link",
+              "displayName": "source_link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI_status",
+              "displayName": "AI_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -768,
+        -432
+      ],
+      "id": "bc63b529-5aea-4b8e-bc30-f7771075c128",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2SaMmM8CtqG5WSAa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1728,
+        -448
+      ],
+      "id": "2551fb8d-e95c-453f-9b4d-9dd43cc0edf8",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google_jobs search": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google_jobs search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "748eda65-76be-4549-b9ba-33f7a62e2fe6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a55ebd0294f5c342ead2bfbcf70577d5962061dd1813eaca69f3d3764ddadd1a"
+  },
+  "nodeGroups": [],
+  "id": "xVqU3bD08aqjukho",
+  "tags": []
+}
